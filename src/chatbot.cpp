@@ -11,39 +11,138 @@
 // constructor WITHOUT memory allocation
 ChatBot::ChatBot()
 {
+    //std::cout<<"Constructor with no mem alloc called at location: "<<this<<"\n";
+    std::cout<<"ChatBot Constructor\n";
     // invalidate data handles
     _image = nullptr;
     _chatLogic = nullptr;
     _rootNode = nullptr;
+    
 }
 
 // constructor WITH memory allocation
 ChatBot::ChatBot(std::string filename)
 {
-    std::cout << "ChatBot Constructor" << std::endl;
+    //std::cout<<"Constructor with mem alloc called at location: "<<this<<"\n";
+    std::cout<<"Chatbot Constructor\n";
     
     // invalidate data handles
     _chatLogic = nullptr;
     _rootNode = nullptr;
+    
 
     // load image into heap memory
     _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
+    //std::cout<<"Image is at location "<<_image<<"\n";
 }
 
 ChatBot::~ChatBot()
 {
     std::cout << "ChatBot Destructor" << std::endl;
-
+    //std::cout<<"Destructor with mem alloc called at location: "<<this<<"\n";
     // deallocate heap memory
     if(_image != NULL) // Attention: wxWidgets used NULL and not nullptr
     {
         delete _image;
         _image = NULL;
+        //std::cout<<"Image freed.   ";
     }
+    //std::cout<<"Exit destructor\n";
 }
 
 //// STUDENT CODE
 ////
+ChatBot::ChatBot(const ChatBot &og_Chatbot)
+{
+    _image = og_Chatbot._image;  
+
+    //_chatLogic = new ChatLogic();
+    _chatLogic = og_Chatbot._chatLogic; 
+
+    //_rootNode = new GraphNode();
+    _rootNode = og_Chatbot._rootNode; 
+
+    //std::cout<<"Coping content of "<<&og_Chatbot<<" to location "<<this<<"\n";
+    std::cout<<"Chatbot Copy Constructor\n"; 
+}
+
+ChatBot& ChatBot::operator=(const ChatBot &og_Chatbot)
+{
+    //std::cout<<"Assigning content of "<<&og_Chatbot<<" to location "<<this<<"\n";
+    std::cout<<"Chatbot Copy Assignment Constructor\n";
+    if(this == &og_Chatbot)
+    {
+        return *this; 
+    }
+    if(_image != NULL)
+    {
+        delete _image; 
+    }
+    _image = og_Chatbot._image;
+
+    _chatLogic = og_Chatbot._chatLogic; 
+
+    _rootNode = og_Chatbot._rootNode; 
+
+    return *this; 
+}
+
+ChatBot::ChatBot(ChatBot &&og_Chatbot)
+{
+    //std::cout<<"Moving content from "<<&og_Chatbot<<" to location "<<this<<"\n";
+    std::cout<<"Chatbot Move Constructor\n";
+    /*if(_image != NULL)
+    {
+        delete _image; 
+    }*/
+
+    _image = og_Chatbot._image;
+
+    //_chatLogic = new ChatLogic();
+    _chatLogic = og_Chatbot._chatLogic; 
+
+    //_rootNode = new GraphNode();
+    _rootNode = og_Chatbot._rootNode; 
+    _chatLogic->SetChatbotHandle(this);
+    //invalidate original 
+    og_Chatbot._rootNode = nullptr;
+    og_Chatbot._chatLogic = nullptr; 
+    og_Chatbot._currentNode = nullptr; 
+    og_Chatbot._image = nullptr; 
+
+}
+
+ChatBot& ChatBot::operator=(ChatBot &&og_Chatbot)
+{
+    //std::cout<<"Assigning and Moving content of "<<&og_Chatbot<<" to location "<<this<<"\n";
+    std::cout<<"Chatbot Move Assignment Constructor\n";
+    if(this == &og_Chatbot)
+    {
+        return *this; 
+    }
+    /*if(_image != NULL)
+    {
+        delete _image; 
+    }*/
+
+    _image = og_Chatbot._image; 
+
+    _chatLogic = og_Chatbot._chatLogic; 
+
+    _rootNode = og_Chatbot._rootNode; 
+
+    _chatLogic->SetChatbotHandle(this); 
+    //invalidate original 
+    og_Chatbot._rootNode = nullptr;
+    og_Chatbot._chatLogic = nullptr; 
+    og_Chatbot._currentNode = nullptr; 
+    og_Chatbot._image = nullptr; 
+ 
+
+    return *this; 
+}
+
+
 
 ////
 //// EOF STUDENT CODE
@@ -77,7 +176,7 @@ void ChatBot::ReceiveMessageFromUser(std::string message)
         // go back to root node
         newNode = _rootNode;
     }
-
+	std::cout<<"Receive Message From User function\n"; 
     // tell current node to move chatbot to new node
     _currentNode->MoveChatbotToNewNode(newNode);
 }
